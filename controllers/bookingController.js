@@ -1,101 +1,99 @@
-const Tour = require('../models/tourModel');
 const User = require('../models/userModel');
-const Booking = require('../models/bookingmodel');
-const stripe = require('stripe')(process.env.STRIP_SECRET_KEY);
-const handler = require('../controllers/handlerFactory');
-exports.getCheckoutSession = async (req, res, next) => {
-  try {
-    //1)get the current booked tour
-    const tour = await Tour.findById(req.params.tourId);
-    //2) create checkout session
-    const session = await stripe.checkout.sessions.create({
-      // 3 require
-      /*
-      ?
-      */
+const BookingModel = require('../models/bookingModel');
+const mongoose = require('mongoose');
+const ObjectID = require('mongoose').Types.ObjectId;
+const bookingModel = require('../models/bookingModel');
+const tour = require('../models/randonneeModel');
+// get all booking
+module.exports.getBooking = ( req, res) =>{
+    BookingModel.find((err, data)=> {
+        if (!err) res.send(data);
+        else console.log('erreur to get data : ' + err);
+    })
+    
+}
 
-      payment_method_types: ['card'],
-      /* success_url: `${req.protocol}://${req.get('host')}/?tour=${
-        tour.id
-      }&user=${req.user.id}&price=${tour.price}` */
-      success_url: `${req.protocol}://${req.get('host')}/my-tours`,
-      cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
-      customer_email: req.user.email,
-      client_reference_id: req.params.tourId,
-      //description for the item tp buy
-      line_items: [
-        {
-          name: `${tour.name} Tour`,
-          description: tour.summary,
-          images: [
-            `${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
-          ],
-          amount: tour.price * 100,
-          currency: 'usd',
-          quantity: 1,
-        },
-      ],
+// add booking
+module.exports.createBooking = async ( req, res) =>{
+    const newBooking = new bookingModel({       
+        tour: mongoose.Types.ObjectId(req.body.tour),
+        user: mongoose.Types.ObjectId(req.body.user),
+        price:req.body.price,
+        paid:true,
+        nbrPlace: req.body.nbrPlace,
     });
-    //3)create session as response
-    res.status(200).json({
-      status: 'success',
-      session,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'error',
-      message: err,
-    });
-  }
-};
-const createbookingCheckout = async (session) => {
-  const tour = session.client_reference_id;
-  const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.display_items[0].amount / 100;
-  await Booking.create({ tour, user, price });
-};
-exports.webhookCheckout = (req, res, next) => {
-  const signatrue = req.headers['stripe-signature'];
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      signatrue,
-      process.env.STRIP_WEBHOOK_SECRET
-    );
-  } catch (err) {
-    return res.status(400).send(`webhook error : ${err}`);
-  }
-  if (event.type === 'checkout.session.completed') {
-    createbookingCheckout(event.data.object);
-    res.status(200).json({
-      recived: true,
-    });
-  }
-};
+    console.log("boook",newBooking.user.name);
+    try{
+       
+        const booking = await newBooking.save();   
+        // User.findById(newBooking.user,(err,user)=>{
+                
+        //     user.reserverTour.push(mongoose.Types.ObjectId(req.body.user))
+            
+        //     user.save();
+        //     console.log('#####')
+        // })
+        return res.status(201).send(booking);
+        
+    }catch (err) {
+        return res.status(400).send(err)
+    }   
+}
 
-/* exports.createbookingCheckout = async (req, res, next) => {
-  //this unsecure coz url is exposed
-  try {
-    const { tour, user, price } = req.query;
-    if (!tour && !user && !price) return next();
+// update info of booking
+module.exports.updateBooking =  ( req, res) =>{
+    if(!ObjectID.isValid(req.params.id))
+        return res.status(400).send("ID inknow :" + req.params.id);
+    
+    const bookingUpdate = {
+        nbrPlace: req.body.nbrPlace,
+    }
+    bookingModel.findByIdAndUpdate (
+        req.params.id ,
+        {$set : bookingUpdate},
+        {new : true },
+        (err, data ) => {
+            if (!err) res.send(data);
+            else console.log("reservation error " + err);
+        }
+    )
+   
+}
 
-    // next should be called on views route  because of the success url
 
-    await Booking.create({ tour, user, price });
+// delete booking
+module.exports.deleteBooking =  ( req, res) =>{
+    if(!ObjectID.isValid(req.params.id))
+    return res.status(400).send("ID inknow :" + req.params.id);
+    
+    bookingModel.findByIdAndRemove( 
+        req.params.id,
+        (err,data) => {
+            if(!err) res.send(data);
+            else console.log("delete error : " + err);
+        }
+    )
 
-    //create new requiest
-    res.redirect(`${req.protocol}://${req.get('host')}/`);
-  } catch (err) {
-    res.status(400).json({
-      status: 'error',
-      message: err,
-    });
-  }
-}; */
+}
 
-exports.createBooking = handler.createOne(Booking);
-exports.getAllBookings = handler.getAll(Booking);
-exports.getBooking = handler.getOne(Booking);
-exports.updateBooking = handler.updateOne(Booking);
-exports.deleteBooking = handler.deleteOne(Booking);
+module.exports.reserverTour= async(req,res) =>{
+    if(!ObjectID.isValid(req.params.id))
+    return res.status(400).send("ID inknow :" + req.params.id);  
+    try{
+        await bookingModel.findByIdAndUpdate(
+            req.params.id,
+            {
+                $addToSet : {user: req.params.id }
+            },
+            {new: true } ,
+            (err, data) => {
+                if(!err) res.send(data);
+                else return res.status(400).send(err);
+            }
+        )
+    }catch(err)
+     {
+        return res.status(400).send(err)
+     }
+    
+}

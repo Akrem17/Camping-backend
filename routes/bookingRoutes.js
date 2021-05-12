@@ -1,23 +1,16 @@
-const express = require('express');
-const bookingController = require('../controllers/bookingController');
-const authController = require('../controllers/authController');
+const router = require ('express').Router();
 
-//make this router acces to outside params
-//POST /tour/id/reviews
+const bookingController = require ('../controllers/bookingController')
 
-const router = express.Router();
-router.use(authController.protect);
-router.get('/checkout-session/:tourId', bookingController.getCheckoutSession);
+router.get('/',bookingController.getBooking);
+router.post('/',bookingController.createBooking);
+router.put('/:id',bookingController.updateBooking);
+router.delete('/:id',bookingController.deleteBooking);
 
-router.use(authController.restrictTo('admin', 'lead-guide'));
-router
-  .route('/')
-  .get(bookingController.getAllBookings)
-  .post(bookingController.createBooking);
 
-router
-  .route('/:id')
-  .get(bookingController.getBooking)
-  .patch(bookingController.updateBooking)
-  .delete(bookingController.deleteBooking);
+router.patch('/reserver/:id', bookingController.reserverTour)
+
+
+
+
 module.exports = router;

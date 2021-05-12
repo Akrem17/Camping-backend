@@ -1,28 +1,46 @@
-const mongoose = require('mongoose');
-const env = require('dotenv');
-env.config({ path: './config.env' });
-const app = require('./app');
+const express = require('express');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+const cors = require('cors');
 
-//connect mongoose
-mongoose
-  .connect(process.env.DATABASE, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-  })
-  .then((con) => {
-    console.log('connected !');
-  });
 
-//start server
-const server = app.listen(5000, () => {
-  console.log('running on port ', process.env.PORT);
+
+require('dotenv').config({ path: './config/.env' });
+require('./config/db');
+const { checkUser, requireAuth } = require ('./middleware/authMiddleware');
+const app = express();
+
+const userRoutes = require('./routes/userRoutes');
+const randonneeRoutes = require('./routes/randonneeRoutes');
+
+const commentRoutes = require('./routes/commentRoutes');
+const bookingRoutes = require ('./routes/bookingRoutes');
+
+
+
+app.use(bodyParser.json()) // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true }))
+// app.use(cors());
+app.use(cookieParser());
+
+
+// jwt
+app.get('*', checkUser);
+app.get('/jwtid', requireAuth, (req,res)=>{
+    res.status(200).send(res.locals.user._id)
+})
+
+
+//Routes 
+
+app.use('/api/randonnee',randonneeRoutes);
+
+app.use('/api/user',userRoutes);
+app.use('/api/comment',commentRoutes);
+app.use('/api/booking', bookingRoutes);
+
+//Server
+app.listen(process.env.PORT, () => {
+    console.log(`Listening on port ${process.env.PORT}`)
 });
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM RECIVIED 👌');
-  server.close(() => {
-    console.log('process terminated !');
-  });
-});

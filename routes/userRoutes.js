@@ -1,42 +1,26 @@
-const express = require('express');
+const router = require ('express').Router();
+const multer = require("multer");
+const upload = multer();
+const authController = require ('../controllers/authController')
 const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
+const uploadController = require('../controllers/uploadController');
 
-const router = express.Router();
+// s'inscrire
+router.post("/register", authController.signUp);
+// se connecter
+router.post('/login', authController.signIn)
+// se deconnecter
+router.get('/logout', authController.logout)
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
-router.get('/logout', authController.logout);
-router.post('/forgotPassword', authController.frogotPassword);
-router.patch('/restPassword/:token', authController.resetPassword);
 
-//use protect for the rest of the middelwar
-router.use(authController.protect);
+// user dispaly: 'block'
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.userInfo);
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
-router.patch('/updateMyPassword', authController.updatePassword);
-router.get('/me', userController.getMe, userController.getUser);
-//photo is the field in the requiest that is going to hold the file
-//this middelwar put info in req
-router.patch(
-  '/updateMe',
-  userController.uploaduserPhoto,
-  userController.resizeuserPhoto,
-  userController.updateMe
-);
-router.delete('/deleteMe', userController.deleteMe);
 
-//use restrect for the rest of the middelwar
-router.use(authController.restrictTo('admin'));
-
-router
-  .route('/')
-  .get(userController.getAllUsers)
-  .post(userController.createUser);
-
-router
-  .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+// upload
+router.post("/upload", upload.single("file"), uploadController.uploadProfil);
 
 module.exports = router;

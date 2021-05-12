@@ -1,105 +1,63 @@
-const User = require('../models/userModel');
-const handler = require('./handlerFactory');
-const multer = require('multer');
-//configure multer storage
-/* const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/users');
-  },
-  filename: (req, file, cb) => {
-    //give files unique name so that they wont be overwritten
-    const extention = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user.id}-${Date.now()}.${extention}`);
-  },
-}); */
-//save it to memorie if there is image processing image will be in req.file.buffer
-const multerStorage = multer.memoryStorage();
-//Multer filter
-const multerFilter = (req, file, cb) => {
-  //test if uploaded file is a image
-  if (file.mimetype.startsWith('image')) {
-    cb(null, true);
-  } else {
-    cb(new Error('please a upload a image'), false);
-  }
-};
+const UserModel = require('../models/userModel');
+const ObjectID = require('mongoose').Types.ObjectId;
 
-//configure multer
-const upload = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
+// get all users
+module.exports.getAllUsers = async( req, res) =>{
+    const users = await UserModel.find().select('-password');
+    res.status(200).json(users);
+}
 
-exports.uploaduserPhoto = upload.single('photo');
+// get one user
+module.exports.userInfo = ( req, res) =>{
+   
+    if(!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID unknow : '+req.params.id)
+    UserModel.findById(req.params.id, (err, data) => {
+        if(!err) res.send(data)
+        else console.log('id unknow : '+ err);
+    }).select('-password');
+}
 
-exports.resizeuserPhoto = (req, res, next) => {
-  if (!req.file) {
-    return next();
-  }
-  //put filename in the request remove data if u want file to be overwritten
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-
-  next();
-};
-exports.createUser = async (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this route is undefined please use sign up',
-  });
-};
-
-exports.getAllUsers = handler.getAll(User);
-exports.getUser = handler.getOne(User);
-//DO note update password here
-exports.updateUser = handler.updateOne(User);
-exports.deleteUser = handler.deleteOne(User);
-exports.getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  next();
-};
-exports.updateMe = async (req, res, next) => {
-  try {
-    //1) create error if user post password
-    if (req.body.password || req.body.passwordConfirm) {
-      throw 'you are not allowed to change password here';
+// update info of user
+module.exports.updateUser = async ( req, res) =>{
+    if (!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID unknow : ' + req.params.id)
+  
+    try {
+        await UserModel.findOneAndUpdate(
+            { _id: req.params.id },
+            {
+                $set:
+                {
+                    name:req.body.name,
+                    
+                }
+            },
+            { new: true , upsert: true, setDefaultsOnInsert: true},
+            (err, data) => {
+                if(!err) return res.send(data);
+                if(err) return res.status(500).send({message: err})
+                
+            }
+        )
+    } catch(err){
+        return res.status(500).json({message: err});
+     
     }
-    //2) update user docuement
-    const filterBody = filterObj(req.body, 'name', 'email');
-    if (req.file) {
-      filterBody.photo = req.file.filename;
+}
+
+
+// delete user
+module.exports.deleteUser = async ( req, res) =>{
+    if (!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID unknow : ' + req.params.id)
+        
+    try {
+        await UserModel.deleteOne({_id: req.params.id}).exec();
+        res.status(200).json({message:"Successfuly deleted."});
+    } catch(err){
+        return res.status(500).json({message: err}); 
     }
-    const user = await User.findByIdAndUpdate(req.user.id, filterBody, {
-      new: true,
-      runValidators: true,
-    });
+  
 
-    res.status(200).json({
-      status: 'success',
-      user,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: err,
-    });
-  }
-};
-
-const filterObj = function (obj, ...fields) {
-  let newObject = {};
-  //return array of object keys
-  Object.keys(obj).forEach((el) => {
-    if (fields.includes(el)) {
-      newObject[el] = obj[el];
-    }
-  });
-  return newObject;
-};
-
-exports.deleteMe = async (req, res, next) => {
-  await User.findByIdAndUpdate(req.user.id, { active: false });
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-};
+}
