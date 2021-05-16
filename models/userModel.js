@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
             enum: ['user', 'guide', 'organisateur', 'admin'],
             default: 'user',
           },
+          searchList: {
+            type:[ String],
+                 
+        },
        
     }
 )

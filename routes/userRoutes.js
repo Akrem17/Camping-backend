@@ -22,5 +22,6 @@ router.delete('/:id', userController.deleteUser);
 
 // upload
 router.post("/upload", upload.single("file"), uploadController.uploadProfil);
+//router.post("/addUserPlace/:id", userController.addSearchedPlaceToUser);
 
 module.exports = router;

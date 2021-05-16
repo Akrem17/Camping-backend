@@ -61,3 +61,18 @@ module.exports.deleteUser = async ( req, res) =>{
   
 
 }
+//push search
+// get all users
+/* module.exports.addSearchedPlaceToUser = async( req, res) =>{
+    try{
+
+
+       
+    const users = await UserModel.update({_id: req.params.id}, {$addToSet: {searchList: req.body.place}})
+
+    res.status(200).json(users);
+}catch(err){
+    res.status(403).json(err)
+}
+}
+ */
