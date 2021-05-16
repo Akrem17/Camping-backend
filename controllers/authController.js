@@ -34,12 +34,18 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
     const email=  req.body.email
     const password = req.body.password 
+
     const user = await userModel.findOne({ email });
+
+
     if(user){
         const auth = await bcrypt.compare(password,user.password);
+        console.log(auth)
         if(auth){
             const token = createToken(user._id); 
+            console.log(user)
             res.cookie('jwt', token, { httpOnly:true, maxAge})
+            console.log(token)
             res.status(200).json({
                user,
                token
@@ -47,6 +53,7 @@ const signIn = async (req, res) => {
         }else{
             
             res.status(201).json({message:'password incorrect'});
+
             }
     }else {
         

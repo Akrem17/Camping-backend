@@ -6,7 +6,7 @@ const protectController = require('../middleware/authMiddleware')
 router.post('/add_randonnee', randonneeController.add_randonnee);
 
 //fetching all Randonnes route
-router.get('/get_randonnee', protectController.protect,randonneeController.get_randonnee);
+router.get('/get_randonnee',randonneeController.get_randonnee);
 //fetching by Randonne_ID route
 router.get('/get_randonnee/:randonneeId', randonneeController.getbyId_randonnee);
 //update randonnee route

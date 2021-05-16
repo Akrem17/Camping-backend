@@ -3,44 +3,63 @@ const Schema = mongoose.Schema;
 
 const randonneeSchema= new Schema(
     {
+       
+        startLocation: {
+          description: {
+            type: String
+          },
+          address: {
+            type: String
+          }
+        },
+        ratingsAverage: {
+          type: Number
+        },
+        ratingsQuantity: {
+          type: Number
+        },
+        images: {
+          type: [
+            String
+          ]
+        },
+        startDates: {
+          type: [
+            String
+          ]
+        },
         name: {
-            type: String,
-            require: true
+          type: String
+        },
+        duration: {
+          type: Number
+        },
+        maxGroupSize: {
+          type: Number
+        },
+        difficulty: {
+          type: String
+        },
+        guides: {
+          type: [
+            String
+          ]
+        },
+        price: {
+          type: Number
+        },
+        summary: {
+          type: String
         },
         description: {
-            type: String,
-            required: true
+          type: String
         },
-        datesortie: {
-            type: Date,
-            required: false
+        imageCover: {
+          type: String
         },
-        datefin: {
-            type: Date,
-            required: false,
-        },
-        destiniation: {
-            type: String,
-            required: false
-        },
-        prix: {
-            type: Number,
-            required: true
-        },
-        nombre_places: {
-            type: Number,
-            required: true
-        },
-        id_organisateur: {
-            type: mongoose.Schema.Types.ObjectId,
-             ref: 'user',
-          required:true
-        },
-        commentaires: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
-          }]
-
-    })
+        locations: {
+          type: Array
+        }
+      })
 
 module.exports = mongoose.model('randonnee', randonneeSchema);
