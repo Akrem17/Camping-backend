@@ -17,7 +17,11 @@ const signUp = async (req, res) => {
     try{
              //create a new user instance
              const user = await userModel.create({name, email, password, picture, role});
-             res.status(201).json({user: user._id});
+             const token = createToken(user._id)
+             res.status(201).json({
+                 user,
+                 token
+                });
     }
     catch(err){
         const errors= signUpErrors(err)
@@ -36,7 +40,10 @@ const signIn = async (req, res) => {
         if(auth){
             const token = createToken(user._id); 
             res.cookie('jwt', token, { httpOnly:true, maxAge})
-            res.status(200).json({user: user._id})
+            res.status(200).json({
+               user,
+               token
+            })
         }else{
             
             res.status(201).json({message:'password incorrect'});

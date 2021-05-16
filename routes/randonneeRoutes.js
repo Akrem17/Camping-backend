@@ -1,12 +1,12 @@
 const router = require ('express').Router();
 
 const randonneeController = require ('../controllers/randonneeController')
-
+const protectController = require('../middleware/authMiddleware')
 //ajout RANDONNE route
 router.post('/add_randonnee', randonneeController.add_randonnee);
-console.log("hif")
+
 //fetching all Randonnes route
-router.get('/get_randonnee', randonneeController.get_randonnee);
+router.get('/get_randonnee', protectController.protect,randonneeController.get_randonnee);
 //fetching by Randonne_ID route
 router.get('/get_randonnee/:randonneeId', randonneeController.getbyId_randonnee);
 //update randonnee route

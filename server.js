@@ -20,7 +20,7 @@ const bookingRoutes = require ('./routes/bookingRoutes');
 
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }))
-// app.use(cors());
+ app.use(cors());
 app.use(cookieParser());
 
 

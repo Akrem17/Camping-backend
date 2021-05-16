@@ -1,9 +1,10 @@
 const userModel = require('../models/userModel');
 const jwt = require ('jsonwebtoken');
+const util = require('util');
 
 
 
-module.exports.checkUser = (req, res, next) => {
+exports.checkUser = (req, res, next) => {
     const token = req.cookies.jwt;
     
     if (token){
@@ -24,7 +25,7 @@ module.exports.checkUser = (req, res, next) => {
     }
 }
 // pour authentification automatique
-module.exports.requireAuth = (req,res , next) => {
+exports.requireAuth = (req,res , next) => {
     const token = req.cookies.jwt;
 
     if (token){
@@ -42,3 +43,45 @@ module.exports.requireAuth = (req,res , next) => {
         console.log('no token ');
     }
 };
+
+//protect route
+exports.protect = async (req, res, next) => {
+    console.log('here')
+    try {
+      //check if token exisit
+      let token;
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+      ) {
+        token = req.headers.authorization.split(' ')[1];
+      } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+      }
+  
+      if (!token) {
+        throw 'You are not loged In';
+      }
+      
+      //verification token
+      const decoded = await util.promisify(jwt.verify)(
+        token,
+        process.env.TOKEN_SECRET
+      );
+      //check if the user still exist
+      const currentUser = await userModel.findById(decoded.id);
+      if (!currentUser) {
+        throw 'User does not exist  !';
+      }
+     
+      //GRANT ACCESS TO ROUTE
+      
+      req.user = currentUser;
+      next();
+    } catch (err) {
+      res.status(400).json({
+        status: 'fail',
+        message: err,
+      });
+    }
+  };

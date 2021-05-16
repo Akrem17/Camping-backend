@@ -36,7 +36,7 @@ exports.add_randonnee=(req,res,next)=>{
 
 // fetch all randonnees
 exports.get_randonnee=(req,res,next)=>{
-     console.log("hi")
+     
     randonneeModel
         .find()
         .then(result =>{
