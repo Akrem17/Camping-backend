@@ -40,7 +40,7 @@ exports.get_randonnee=(req,res,next)=>{
     randonneeModel
         .find()
         .then(result =>{
-            console.log("tous les randonnées :");
+            
             res.send(result);
         })
         .catch(err =>{

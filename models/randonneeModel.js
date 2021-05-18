@@ -62,4 +62,4 @@ const randonneeSchema= new Schema(
         }
       })
 
-module.exports = mongoose.model('randonnee', randonneeSchema);
+module.exports = mongoose.model('tour', randonneeSchema);
