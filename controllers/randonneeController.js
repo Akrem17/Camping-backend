@@ -35,17 +35,29 @@ exports.add_randonnee=(req,res,next)=>{
 };
 
 // fetch all randonnees
-exports.get_randonnee=(req,res,next)=>{
+exports.get_randonnee=async (req,res,next)=>{
+    
+    let reg = ""
+    let reg2 = ""
+    let obj = null
+    let append = null
+    if (req.query.startLocation)  { 
+         reg = new RegExp( "^"+req.query.startLocation,"i" )
+         reg2= new RegExp( "^(?!"+req.query.startLocation+")","i" )
+
+             obj = await randonneeModel.find({'startLocation.description':reg}).lean()
+             append = await randonneeModel.find({'startLocation.description':reg2}).lean()
      
-    randonneeModel
-        .find()
-        .then(result =>{
-            
-            res.send(result);
-        })
-        .catch(err =>{
-            console.log(err);
-        });
+        append.forEach(elt=>{
+        obj.push(elt)
+     })
+     }else{
+
+         obj = await randonneeModel.find()
+     }
+    
+     res.json(obj)
+    
     }
     // fetch-by-ID randonnees
 exports.getbyId_randonnee=(req,res,next)=>{
