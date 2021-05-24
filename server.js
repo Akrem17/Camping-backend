@@ -2,7 +2,7 @@ const express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 const cors = require('cors');
-
+const contextService = require('request-context');
 
 
 require('dotenv').config({ path: './config/.env' });
@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
  app.use(cors());
 app.use(cookieParser());
 
+app.use(contextService.middleware('request'));
 
 // jwt
 app.get('*', checkUser);

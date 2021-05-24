@@ -62,15 +62,56 @@ module.exports.deleteUser = async ( req, res) =>{
 
 }
 
- module.exports.addSearchedPlaceToUser = async( req, res) =>{
+ module.exports.addSearchedPlaceToUser = async( req, res,next) =>{
     try{
 
         //
 
 
        
-    const users = await UserModel.findByIdAndUpdate(req.params.id,{})
+    const users = await UserModel.findById(req.params.id)
+    if(users.searchList.length==0){
+        console.log(req.body.place)
+        req.body.list=[req.body.place.toLowerCase()]
 
+  
+
+    }else{
+        totalPlaces=users.searchList;
+        place=req.body.place.toLowerCase();
+        if(totalPlaces.indexOf(place)<0){
+            totalPlaces.unshift(place)
+        }else{
+          
+            totalPlaces = totalPlaces.filter(i => i !== place);
+            totalPlaces.unshift(place)
+
+            console.log(totalPlaces)
+        }
+        if(totalPlaces.length>5){
+            totalPlaces.pop();
+        }
+        req.body.list=totalPlaces
+    }
+    next();
+    console.log(totalPlaces,place)
+
+}catch(err){
+    res.status(403).json(err)
+}
+}
+ 
+
+module.exports.update = async( req, res) =>{
+    try{
+
+        //
+        console.log(req.body.list)
+
+
+       
+    const users = await UserModel.findByIdAndUpdate(req.params.id,{searchList:req.body.list})
+ 
     res.status(200).json(users);
 }catch(err){
     res.status(403).json(err)
