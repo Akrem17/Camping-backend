@@ -52,7 +52,7 @@ exports.get_randonnee=async (req,res,next)=>{
         obj.push(elt)
      })
      }else{
-
+        
          obj = await randonneeModel.find()
      }
     
