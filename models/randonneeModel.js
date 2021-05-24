@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema; 
 
+const opts = {
+    toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+}
 const randonneeSchema= new Schema(
     {
        
@@ -59,7 +63,15 @@ const randonneeSchema= new Schema(
         },
         locations: {
           type: Array
-        }
-      })
+        },
+        
+        
+      },opts)
+
+      randonneeSchema.virtual('comments', {
+        ref: 'comment',
+        foreignField: 'tour',
+        localField: '_id',
+      });
 
 module.exports = mongoose.model('tour', randonneeSchema);

@@ -11,9 +11,9 @@ date: {
       default: Date.now
    },
 // each comment can only relates to one randonnee, so it's not in array
-randonnee: {
+tour: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'randonnee'
+      ref: 'tour'
    },
    attitude : {
     type: String,
@@ -22,4 +22,4 @@ randonnee: {
 })
  
 
-module.exports = mongoose.model('Comment', commentSchema);
+module.exports = mongoose.model('comment', commentSchema);
