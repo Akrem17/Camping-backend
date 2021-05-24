@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const opts = {
     toJSON: { virtuals: true },
-        toObject: { virtuals: true },
+    toObject: { virtuals: true },
 }
 const randonneeSchema= new Schema(
     {

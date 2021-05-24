@@ -63,7 +63,12 @@ exports.get_randonnee=async (req,res,next)=>{
 exports.getbyId_randonnee=(req,res,next)=>{
      
     randonneeModel
-        .findById(req.params.randonneeId).populate('comments')
+        .findById(req.params.randonneeId).
+        populate({
+            path: 'comments',
+
+            populate: 'user'
+          })
         .then(result =>{
             console.log(result);
             res.send(result);

@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-
+const opts = {
+   toJSON: { virtuals: true },
+   toObject: { virtuals: true },
+}
 const commentSchema = new mongoose.Schema({
  text: {
       type: String,
@@ -15,11 +18,15 @@ tour: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'tour'
    },
+user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user'
+   },
    attitude : {
     type: String,
     
 }
-})
+},opts)
  
 
 module.exports = mongoose.model('comment', commentSchema);

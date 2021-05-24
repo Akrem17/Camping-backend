@@ -31,6 +31,7 @@ exports.add_comment=(req,res)=>{
                 text : req.body.comment,
                 date : req.body.date,
                 tour : req.body.tourId,
+                user : req.user._id,
                 attitude : result.sentiment.toString(),
                 
             });
