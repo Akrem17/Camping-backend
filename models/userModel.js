@@ -62,6 +62,15 @@ userSchema.pre("save", async function(next) {
 //     throw Error('incorrect email');
 // }
 
+userSchema.pre("findOneAndUpdate", async function(next) {
+
+    const docToUpdate = await this.model.findOne(this.getQuery());
+    placesList=docToUpdate.searchLists;
+    console.log(placesList);
+
+
+    next();
+});
 
 
 
