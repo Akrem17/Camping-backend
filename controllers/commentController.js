@@ -1,8 +1,10 @@
 const commentModel = require('../models/commentModel');
+const randonneeModel = require('../models/randonneeModel');
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 
 const client = new TextAnalyticsClient("https://bacem.cognitiveservices.azure.com/", new AzureKeyCredential("b7cc5a9ee1634299806b1b14d03f60a0"));
-
+var randonneeC= require('../controllers/randonneeController');
+const http = require("http");
 
 
 // Add comment 
@@ -13,6 +15,7 @@ exports.add_comment=(req,res)=>{
     const documents = [
         req.body.comment,
       ];
+    var rating=0;
       
       //Calling the anlyzeSentiment method of our TextAnalyticsClient
       const results = client.analyzeSentiment(documents).then(
@@ -39,11 +42,62 @@ exports.add_comment=(req,res)=>{
                 .then(res =>{
                     console.log('created comment');
                     //res.send(result.sentiment);
-                    
+                    var condition_comment = {randonnee:req.params.idrandonnee,attitude:"positive"};
+                    commentModel
+                        .find(condition_comment)
+                        .countDocuments(condition_comment)
+                        .then(comm =>{
+                         console.log(comm);
+                           rating=commentModel.countDocuments({randonnee:req.params.idrandonnee}, function(err, total_comments) {
+                                if (err) {
+                                  console.log(err);
+                                } else {
+                                  console.log("nb total:",total_comments);
+                                  var ratingAVG=(comm * 100)/total_comments;
+                                        switch (true) {
+                                            case (ratingAVG===100) :
+                                            rating = 5;
+                                            break;
+                                            case (ratingAVG<100 && ratingAVG>75) :
+                                            rating = 4;
+                                            break;
+                                            case (ratingAVG<=75 && ratingAVG>50) :
+                                            rating = 3;
+                                            break;
+                                            case (ratingAVG<=50 && ratingAVG>25) :
+                                            rating = 2;
+                                            break;
+                                            case (ratingAVG<=25 && ratingAVG>0) :
+                                            rating = 1;
+                                            break;
+                                            case (ratingAVG===0) :
+                                            rating = 0;
+                                            break;
+                                            
+                                        }
+                                        var condition_rand = {_id:req.params.idrandonnee};
+                                        randonneeModel
+                                            .updateOne(condition_rand,{ratingsAverage:rating})
+                                            .then(result =>{
+                                                console.log("mise a jour de rating avec succes");
+                                                
+                                            })
+                                            .catch(err =>{
+                                                console.log(err);
+                                            });
+                                }
+                              });
+
+                        })
+                        .catch(err =>{
+                            console.log(err);
+                        });
                 })
                 .catch(err =>{
                     console.log(err);
                 });
+
+           
 
         res.json({ 
             overall : result.sentiment,

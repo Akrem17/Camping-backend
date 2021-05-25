@@ -6,20 +6,10 @@ const mongoose = require('mongoose');
 
 
 // add randonnee
+  
 exports.add_randonnee=(req,res,next)=>{
     console.log(req.body);
-    const randonnee = new randonneeModel({
-        name : req.body.name,
-        description : req.body.description,
-        datesortie : req.body.datesortie,
-        datefin : req.body.datefin,
-        destiniation : req.body.destiniation,
-        prix : req.body.prix,
-        nombre_places : req.body.nombre_places,
-
-        id_organisateur :mongoose.Types.ObjectId(req.body.user),
-
-    });
+    const randonnee = new randonneeModel(req.body);
     randonnee
         .save()
         .then(result =>{
@@ -33,6 +23,7 @@ exports.add_randonnee=(req,res,next)=>{
 
         
 };
+
 
 // fetch all randonnees
 exports.get_randonnee=(req,res,next)=>{
