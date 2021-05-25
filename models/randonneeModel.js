@@ -18,7 +18,7 @@ const randonneeSchema= new Schema(
         },
         ratingsAverage: {
           type: Number,
-          default:0
+          default: 2.5
         },
         ratingsQuantity: {
           type: Number,

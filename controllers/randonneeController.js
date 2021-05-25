@@ -6,9 +6,12 @@ const mongoose = require('mongoose');
 
 
 // add randonnee
+  
 exports.add_randonnee=(req,res,next)=>{
     console.log(req.body);
+
     const randonnee = new randonneeModel(req.body)
+
         .save()
         .then(result =>{
             console.log(result);
@@ -21,6 +24,7 @@ exports.add_randonnee=(req,res,next)=>{
 
         
 };
+
 
 // fetch all randonnees
 exports.get_randonnee=async (req,res,next)=>{

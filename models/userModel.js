@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 const {isEmail} = require('validator');
+const contextService = require('request-context');
+
 var bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: true,
-            minlength: 3,
-            maxlength: 55,
-            unique: true,
-            trim:true
+          
+   
         },
         email: {
             type: String,
@@ -62,6 +61,29 @@ userSchema.pre("save", async function(next) {
 //     throw Error('incorrect email');
 // }
 
+userSchema.pre("findOneAndUpdate", async function(next) {
+
+ /*    const docToUpdate =  await this.model.findOne(this.getQuery());
+    var searchList=docToUpdate.searchLists;
+    if(docToUpdate.searchList.length==0){
+ */
+       // searchList=[this.options.req.body.place]
+
+ 
+//   const doc=  await this.model.findOneAndUpdate({email:"araer@dsfs.fsd"}, {name:"Naomi"})
+     this.name="aaadfdsaa"
+    next();
+
+
+        
+
+/*         console.log(doc)
+    }else{
+        console.log("wa")
+    }
+ */
+
+});
 
 
 
