@@ -8,23 +8,11 @@ const mongoose = require('mongoose');
 // add randonnee
 exports.add_randonnee=(req,res,next)=>{
     console.log(req.body);
-    const randonnee = new randonneeModel({
-        name : req.body.name,
-        description : req.body.description,
-        datesortie : req.body.datesortie,
-        datefin : req.body.datefin,
-        destiniation : req.body.destiniation,
-        prix : req.body.prix,
-        nombre_places : req.body.nombre_places,
-
-        id_organisateur :mongoose.Types.ObjectId(req.body.user),
-
-    });
-    randonnee
+    const randonnee = new randonneeModel(req.body)
         .save()
         .then(result =>{
-            console.log('created randonnee');
-            res.send('created randonnee');
+            console.log(result);
+            res.json(result);
         })
         .catch(err =>{
             console.log(err);

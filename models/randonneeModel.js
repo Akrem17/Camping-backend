@@ -17,10 +17,12 @@ const randonneeSchema= new Schema(
           }
         },
         ratingsAverage: {
-          type: Number
+          type: Number,
+          default:0
         },
         ratingsQuantity: {
-          type: Number
+          type: Number,
+          default:0
         },
         images: {
           type: [
