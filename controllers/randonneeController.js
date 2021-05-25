@@ -9,12 +9,13 @@ const mongoose = require('mongoose');
   
 exports.add_randonnee=(req,res,next)=>{
     console.log(req.body);
-    const randonnee = new randonneeModel(req.body);
-    randonnee
+
+    const randonnee = new randonneeModel(req.body)
+
         .save()
         .then(result =>{
-            console.log('created randonnee');
-            res.send('created randonnee');
+            console.log(result);
+            res.json(result);
         })
         .catch(err =>{
             console.log(err);
@@ -26,23 +27,40 @@ exports.add_randonnee=(req,res,next)=>{
 
 
 // fetch all randonnees
-exports.get_randonnee=(req,res,next)=>{
+exports.get_randonnee=async (req,res,next)=>{
+    
+    let reg = ""
+    let reg2 = ""
+    let obj = null
+    let append = null
+    if (req.query.startLocation)  { 
+         reg = new RegExp( "^"+req.query.startLocation,"i" )
+         reg2= new RegExp( "^(?!"+req.query.startLocation+")","i" )
+
+             obj = await randonneeModel.find({'startLocation.description':reg}).lean()
+             append = await randonneeModel.find({'startLocation.description':reg2}).lean()
      
-    randonneeModel
-        .find()
-        .then(result =>{
-            console.log("tous les randonnées :");
-            res.send(result);
-        })
-        .catch(err =>{
-            console.log(err);
-        });
+        append.forEach(elt=>{
+        obj.push(elt)
+     })
+     }else{
+        
+         obj = await randonneeModel.find()
+     }
+    
+     res.json(obj)
+    
     }
     // fetch-by-ID randonnees
 exports.getbyId_randonnee=(req,res,next)=>{
      
     randonneeModel
-        .findById(req.params.randonneeId)
+        .findById(req.params.randonneeId).
+        populate({
+            path: 'comments',
+
+            populate: 'user'
+          })
         .then(result =>{
             console.log(result);
             res.send(result);

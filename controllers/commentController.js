@@ -33,7 +33,8 @@ exports.add_comment=(req,res)=>{
             const comment = new commentModel({
                 text : req.body.comment,
                 date : req.body.date,
-                randonnee : req.params.idrandonnee,
+                tour : req.body.tourId,
+                user : req.user._id,
                 attitude : result.sentiment.toString(),
                 
             });
