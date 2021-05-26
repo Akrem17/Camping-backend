@@ -52,7 +52,8 @@ exports.get_randonnee=async (req,res,next)=>{
          reg2= new RegExp( "^(?!"+req.query.startLocation+")","i" )
              obj = await randonneeModel.find({'startLocation.description':reg}).lean()
              append = await randonneeModel.find({'startLocation.description':reg2}).lean()
-     
+             append =sortByKey(append,"ratingsAverage")
+
         append.forEach(elt=>{
         obj.push(elt)
 
