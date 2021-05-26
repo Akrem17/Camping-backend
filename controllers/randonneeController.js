@@ -24,7 +24,19 @@ exports.add_randonnee=(req,res,next)=>{
 
         
 };
+// get rand by name
+exports.randoByName=async (req,res,next)=>{
 
+
+ 
+   
+             obj = await randonneeModel.find({'startLocation.description':req.body.place}).lean()
+    
+     
+       
+     res.json(obj)
+    
+    }
 
 // fetch all randonnees
 exports.get_randonnee=async (req,res,next)=>{
@@ -33,10 +45,11 @@ exports.get_randonnee=async (req,res,next)=>{
     let reg2 = ""
     let obj = null
     let append = null
+    console.log(req.query.startLocation)
+
     if (req.query.startLocation)  { 
          reg = new RegExp( "^"+req.query.startLocation,"i" )
          reg2= new RegExp( "^(?!"+req.query.startLocation+")","i" )
-
              obj = await randonneeModel.find({'startLocation.description':reg}).lean()
              append = await randonneeModel.find({'startLocation.description':reg2}).lean()
      

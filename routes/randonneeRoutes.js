@@ -7,6 +7,8 @@ router.post('/add_randonnee', randonneeController.add_randonnee);
 
 //fetching all Randonnes route
 router.get('/get_randonnee',randonneeController.get_randonnee);
+router.post('/getbyname',randonneeController.randoByName);
+
 //fetching by Randonne_ID route
 router.get('/get_randonnee/:randonneeId', randonneeController.getbyId_randonnee);
 //update randonnee route
