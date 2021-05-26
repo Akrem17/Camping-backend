@@ -45,8 +45,8 @@ exports.get_randonnee=async (req,res,next)=>{
     let reg2 = ""
     let obj = null
     let append = null
+    var places=[]
     console.log(req.query.startLocation)
-
     if (req.query.startLocation)  { 
          reg = new RegExp( "^"+req.query.startLocation,"i" )
          reg2= new RegExp( "^(?!"+req.query.startLocation+")","i" )
@@ -55,15 +55,39 @@ exports.get_randonnee=async (req,res,next)=>{
      
         append.forEach(elt=>{
         obj.push(elt)
+
      })
      }else{
         
-         obj = await randonneeModel.find()
+         //obj = await randonneeModel.find()
+         var searchList=req.user.searchList;
+         for (const element of searchList) {
+           
+            obj = await randonneeModel.find({'startLocation.description':element}).lean()
+            if( obj.length>0){
+            for(const el of obj){
+            places.push(el)          }
+
+           }
+        }
+        append = await randonneeModel.find( { "startLocation.description": { $nin:searchList} } ).lean()
+        append =sortByKey(append,"ratingsAverage")
+        console.log(append)
+        for( e of append){
+            places.push(e)
+
+        }
+        
+ 
      }
-    
-     res.json(obj)
+     console.log("waaaaaaaaaaa")
+
+     res.json(places)
     
     }
+    function sortByKey(array, key) {
+        return array.sort(function(a,b) { return b[key] - a[key];});
+      }
     // fetch-by-ID randonnees
 exports.getbyId_randonnee=(req,res,next)=>{
      
