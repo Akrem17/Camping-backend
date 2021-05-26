@@ -57,6 +57,8 @@ exports.get_randonnee=async (req,res,next)=>{
         obj.push(elt)
 
      })
+
+     places=obj
      }else{
         
          //obj = await randonneeModel.find()
@@ -80,7 +82,7 @@ exports.get_randonnee=async (req,res,next)=>{
         
  
      }
-     console.log("waaaaaaaaaaa")
+     
 
      res.json(places)
     
