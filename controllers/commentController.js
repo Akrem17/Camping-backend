@@ -38,18 +38,20 @@ exports.add_comment=(req,res)=>{
                 attitude : result.sentiment.toString(),
                 
             });
+            req.params.idrandonnee=req.body.tourId;
+            console.log(req.params.idrandonnee +" waaaaaaaaaaaaaaa")
             comment
                 .save()
                 .then(res =>{
                     console.log('created comment');
                     //res.send(result.sentiment);
-                    var condition_comment = {randonnee:req.params.idrandonnee,attitude:"positive"};
+                    var condition_comment = {tour:req.params.idrandonnee,attitude:"positive"};
                     commentModel
                         .find(condition_comment)
                         .countDocuments(condition_comment)
                         .then(comm =>{
                          console.log(comm);
-                           rating=commentModel.countDocuments({randonnee:req.params.idrandonnee}, function(err, total_comments) {
+                           rating=commentModel.countDocuments({tour:req.params.idrandonnee}, function(err, total_comments) {
                                 if (err) {
                                   console.log(err);
                                 } else {
@@ -77,6 +79,7 @@ exports.add_comment=(req,res)=>{
                                             
                                         }
                                         var condition_rand = {_id:req.params.idrandonnee};
+                                        console.log(condition_rand)
                                         randonneeModel
                                             .updateOne(condition_rand,{ratingsAverage:rating})
                                             .then(result =>{
@@ -118,7 +121,7 @@ exports.add_comment=(req,res)=>{
 
 // fetch comments by-ID-randonnee
 exports.get_Allcomments=(req,res,next)=>{
-    var condition = {randonnee:req.params.idrandonnee};
+    var condition = {tour:req.params.idrandonnee};
 
     commentModel
         .find(condition)
